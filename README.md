@@ -1,9 +1,5 @@
 # CRYPTOGRAPHY-CIA
 
-Here is a complete, formatted `README.md` that answers all your questions and explains the mechanics of the code. You can copy and paste this directly into your repository!
-
-***
-
 # Autokey Cipher (XOR Implementation)
 
 This repository contains a Python implementation of the classic **Autokey Cipher**, but with a modern cryptographic twist: instead of using standard modular arithmetic to encrypt the letters, it uses the **Bitwise XOR (`^`)** operator.
@@ -40,6 +36,93 @@ Map the resulting numbers back to characters using the dictionary.
 * **Encrypted Text:** `BDG`
 
 To decrypt, you simply run the exact same XOR steps: `Encrypted ^ Key = Plaintext` (`1 ^ 18 = 19`, which is `T`).
+
+## 4. Python Implementation
+
+'''
+# Python program to implement Autokey Cipher using XOR
+
+# Expanded Dictionary to 32 characters (A-Z + 1-6) 
+# This prevents out-of-bounds errors when using bitwise XOR without modulo.
+dict1 = {'A': 0, 'B': 1, 'C': 2, 'D': 3, 'E': 4,
+         'F': 5, 'G': 6, 'H': 7, 'I': 8, 'J': 9,
+         'K': 10, 'L': 11, 'M': 12, 'N': 13, 'O': 14,
+         'P': 15, 'Q': 16, 'R': 17, 'S': 18, 'T': 19,
+         'U': 20, 'V': 21, 'W': 22, 'X': 23, 'Y': 24, 'Z': 25,
+         '1': 26, '2': 27, '3': 28, '4': 29, '5': 30, '6': 31}
+
+dict2 = {0: 'A', 1: 'B', 2: 'C', 3: 'D', 4: 'E',
+         5: 'F', 6: 'G', 7: 'H', 8: 'I', 9: 'J',
+         10: 'K', 11: 'L', 12: 'M', 13: 'N', 14: 'O',
+         15: 'P', 16: 'Q', 17: 'R', 18: 'S', 19: 'T',
+         20: 'U', 21: 'V', 22: 'W', 23: 'X', 24: 'Y', 25: 'Z',
+         26: '1', 27: '2', 28: '3', 29: '4', 30: '5', 31: '6'}
+
+
+# This function generates the key
+def generate_key(message, key):
+    i = 0
+    while True:
+        if len(key) == len(message):
+            break
+        if message[i] == ' ':
+            i += 1
+        else:
+            key += message[i]
+            i += 1
+    return key
+
+
+# This function returns the encrypted text 
+# generated using the Bitwise XOR hash function
+def cipherText(message, key_new):
+    cipher_text = ''
+    i = 0
+    for letter in message:
+        if letter == ' ':
+            cipher_text += ' '
+        else:
+            # XOR operation replaces the addition and modulo
+            x = dict1[letter] ^ dict1[key_new[i]]
+            i += 1
+            cipher_text += dict2[x]
+    return cipher_text
+
+
+# This function decrypts the encrypted text
+# XOR is its own inverse, so the decryption logic is identical to encryption!
+def originalText(cipher_text, key_new):
+    or_txt = ''
+    i = 0
+    for letter in cipher_text:
+        if letter == ' ':
+            or_txt += ' '
+        else:
+            # XOR operation reverses the encryption automatically
+            x = dict1[letter] ^ dict1[key_new[i]]
+            i += 1
+            or_txt += dict2[x]
+    return or_txt
+
+
+def main():
+    message = 'THE GERMAN ATTACK'
+    key = 'SECRET'
+    key_new = generate_key(message, key)
+    
+    cipher_text = cipherText(message, key_new)
+    original_text = originalText(cipher_text, key_new)
+    
+    print("Plaintext Message =", message)
+    print("Generated Autokey =", key_new)
+    print("Encrypted Text    =", cipher_text)
+    print("Decrypted Text    =", original_text)
+
+
+# Executes the main function
+if __name__ == '__main__':
+    main()
+'''
 
 ## 3. Why 32 Characters Instead of 26?
 When you use modulo 26 arithmetic, the numbers are forced to wrap around, guaranteeing they never exceed 25. 
