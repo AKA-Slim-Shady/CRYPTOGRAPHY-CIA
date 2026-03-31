@@ -37,9 +37,9 @@ Map the resulting numbers back to characters using the dictionary.
 
 To decrypt, you simply run the exact same XOR steps: `Encrypted ^ Key = Plaintext` (`1 ^ 18 = 19`, which is `T`).
 
-## 4. Python Implementation
+## 3. Python Implementation
 
-'''
+```python3
 # Python program to implement Autokey Cipher using XOR
 
 # Expanded Dictionary to 32 characters (A-Z + 1-6) 
@@ -122,22 +122,30 @@ def main():
 # Executes the main function
 if __name__ == '__main__':
     main()
-'''
+```
 
-## 3. Why 32 Characters Instead of 26?
+### Expected Output:
+```plaintext
+Plaintext Message = THE GERMAN ATTACK
+Generated Autokey = SECRETTHEGERMANAT
+Encrypted Text    = BDG XAC6HJ GXCMCH
+Decrypted Text    = THE GERMAN ATTACK
+```
+
+## 4. Why 32 Characters Instead of 26?
 When you use modulo 26 arithmetic, the numbers are forced to wrap around, guaranteeing they never exceed 25. 
 
 Bitwise XOR does not work like this. If you XOR two numbers between 0 and 25 (like `19 ^ 18 = 1`, or `25 ^ 15 = 22`), the result can theoretically go up to **31** (which is `11111` in binary). 
 
 If we kept a 26-character dictionary, the script would eventually calculate a number like 28 and throw a `KeyError` because '28' doesn't exist in the alphabet. By padding the dictionary with numbers `1` through `6`, we expand the index to **32 characters** (a perfect power of 2: $2^5$). This completely contains the 5-bit XOR logic and prevents any out-of-bounds errors.
 
-## 4. Vulnerabilities and Cryptanalysis
+## 5. Vulnerabilities and Cryptanalysis
 This specific implementation has two major vulnerabilities:
 
 * **The Zero-Identity Flaw (XOR specific):** If a letter in the plaintext perfectly matches the letter in the key (e.g., `E` ^ `E`), the mathematical result of an XOR is always `0`. Because `0` maps to `A` in our dictionary, anytime the plaintext and key share a letter, the encrypted output will predictably be `A`. (This can be fixed in future versions by adding a constant "Salt" to the XOR equation).
 * **The Crib-Dragging Attack (Autokey specific):** The fatal flaw of all Autokey ciphers is that *the key is made out of the message*. If an attacker guesses even a single word in your message (like guessing "ATTACK" is in the text), they can reverse the XOR to reveal a piece of the key. Because the key *is* the plaintext, they just revealed another piece of your message! They can "drag" this known text down the cipher to unzip the entire message in a chain reaction.
 
-## 5. Why is this Better or Worse than Modulo 26?
+## 6. Why is this Better or Worse than Modulo 26?
 
 **Why it is Better:**
 * **Computational Efficiency:** Bitwise operations are significantly faster for computer processors to execute than division/modulo math.
@@ -146,3 +154,26 @@ This specific implementation has two major vulnerabilities:
 **Why it is Worse:**
 * **The 'A' Problem:** As mentioned above, basic Modulo 26 doesn't have the Zero-Identity flaw. In Modulo 26, `E` (4) + `E` (4) = `I` (8). In XOR, `E` (4) ^ `E` (4) = `A` (0), creating an unwanted pattern if un-salted.
 * **Non-Alphabetic Characters:** By forcing a 32-character dictionary, your ciphertext will sometimes output numbers (1-6). If you are trying to disguise your code as a standard A-Z alphabet block, the presence of numbers immediately gives away that an expanded dictionary or bitwise math is being used.
+
+## 7. List of Prompts Used
+
+1. **The Initial Code Modification:**
+   > "THIS IS A CODE FOR DOING THE AUTOKEY CIPHER USING PYTHON , I WANT YOU TO USE THIS CODE AS A BASIS AND MODIFY IT SUCH THAT INSTEAD OF USING THE NORMAL DIVISION HASH , I WANT YOU TO USE A MULTIPLICATIVE HASHING FUNCTION. RETURN THE CODE WITH EXPLANATION" *(Followed by your original Python script)*
+
+2. **The Zero-Identity Observation:**
+   > "Plaintext Message = [Redacted text]... Decrypted Text = [Redacted text] R HAS A, E HAS A, AND X HAS A" *(Pointing out that matching letters resulted in 'A')*
+
+3. **The Hash Collision Request:**
+   > "IT HAS COLLISION , THE MULTIPLICATIVE HASH DOESNT WORK , GIVE ME A HASHING FUNCTION WHICH USES BITWISE XOR"
+
+4. **The Successful Execution Update:**
+   > "Plaintext Message = THE GERMAN ATTACK... Decrypted Text = THE GERMAN ATTACK === Code Execution Successful ==="
+
+5. **The Cryptanalysis Question:**
+   > "G MAPS TO E AND E ALSO MAPS TO E ISNT THAT VULNERABLE TO CRYPTANALYSIS , IS THAT A FLAW OF AUTOKEY OR IS IT A PROBLEM WITH THE HASH? ISNT THIS A COLLISION"
+
+6. **The README Generation Request:**
+   > "GIVE A README FOR THIS CODE. THE README SHOULD HAVE THE FOLLOWING 1) WHAT DIFFERENT HASH FUNCTION WE USED 2) GIVE STEPS FOR DOING AUTOKEY CIPHER USING BITWISE XOR CIPHER (GIVE EXAMPLE) 3) WHY 32 CHARACTERS INSTEAD OF 26? 4) HOW IS IT VULNERABLE TO ATTACK OR CRYPTANALYSIS? 5) WHY IS IT BETTER OR WORSE THAN DOING JUST MOD 26"
+
+7. **This Current Request:**
+   > "I HAVE ASKED YOU PROMPTS RIGHT? GIVE ME THE LIST OF PROMPTS"
